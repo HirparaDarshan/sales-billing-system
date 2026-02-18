@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4>Create Customer</h4>
+            </div>
+            <div class="card-body">
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label>Name</label>
+                        {{ form.name }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Address</label>
+                        {{ form.address }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Customer Type</label>
+                        {{ form.customer_type }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Mobile</label>
+                        {{ form.mobile }}
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        Save Customer
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

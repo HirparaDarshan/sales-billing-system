@@ -1,0 +1,12 @@
+/* Sales Bill Form Styling */
+.product-row {
+    margin-bottom: 10px;
+}
+.product-row select,
+.product-row input {
+    width: 100%;
+}
+.modal-footer h5#modal-total {
+    font-weight: bold;
+    margin-right: auto;
+}
