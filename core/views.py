@@ -1,96 +1,95 @@
+from django.views.generic import TemplateView, CreateView
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.db import transaction
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 
-from core.forms import CustomerForm, ProductForm, SalesBillItemFormSet
 from core.models import Customer, Product, SalesBill, SalesBillItem
+from core.forms import CustomerForm, ProductForm
 
 
-def home(request):
-    if not request.user.is_authenticated:
-        return redirect("login")
-    return render(request, "home.html")
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = "home.html"
+    login_url = reverse_lazy("login")
 
 
-def user_login(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+class UserLoginView(LoginView):
+    template_name = "login.html"
+    authentication_form = AuthenticationForm
+    redirect_authenticated_user = True
 
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect("home")
-        else:
-            messages.error(request, "Invalid Username or Password")
-
-    return render(request, "login.html")
+    def get_success_url(self):
+        return reverse_lazy("home")
 
 
-def register(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already exists")
-        else:
-            User.objects.create_user(username=username, password=password)
-            messages.success(request, "Account Created Successfully")
-            return redirect("login")
-
-    return render(request, "register.html")
+class UserLogoutView(LogoutView):
+    next_page = reverse_lazy("login")
 
 
-def user_logout(request):
-    logout(request)
-    return redirect("login")
+class RegisterView(CreateView):
+    template_name = "register.html"
+    form_class = UserCreationForm
+    success_url = reverse_lazy("login")
+
+    def get_form(self):
+        form = super().get_form()
+        for field in form.fields.values():
+            field.widget.attrs["class"] = "form-control"
+        return form
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, "Account Created Successfully")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors below")
+        return super().form_invalid(form)
 
 
-@login_required
-def create_customer(request):
-    form = CustomerForm()
+class CustomerCreateView(LoginRequiredMixin, CreateView):
+    model = Customer
+    form_class = CustomerForm
+    template_name = "create_customer.html"
+    success_url = reverse_lazy("home")
 
-    if request.method == "POST":
-        form = CustomerForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Customer Created Successfully")
-            return redirect("home")
-
-    return render(request, "create_customer.html", {"form": form})
+    def form_valid(self, form):
+        messages.success(self.request, "Customer Created Successfully")
+        return super().form_valid(form)
 
 
-@login_required
-def create_product(request):
-    form = ProductForm()
+class ProductCreateView(LoginRequiredMixin, CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = "create_product.html"
+    success_url = reverse_lazy("home")
 
-    if request.method == "POST":
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Product Created Successfully")
-            return redirect("home")
-
-    return render(request, "create_product.html", {"form": form})
+    def form_valid(self, form):
+        messages.success(self.request, "Product Created Successfully")
+        return super().form_valid(form)
 
 
-@login_required
-@transaction.atomic
-def create_sales_bill(request):
-    customers = Customer.objects.all()
-    products = Product.objects.all()
+class SalesBillCreateView(LoginRequiredMixin, TemplateView):
+    template_name = "create_sales_bill.html"
+    success_url = reverse_lazy("home")
 
-    if request.method == "POST":
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["customers"] = Customer.objects.all()
+        context["products"] = Product.objects.all()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        customers = Customer.objects.all()
+        products = Product.objects.all()
+
         customer_id = request.POST.get("customer")
         customer = Customer.objects.get(id=customer_id)
 
         bill = SalesBill.objects.create(
-            customer=customer, user=request.user, total_amount=0  # will update later
+            customer=customer, user=request.user, total_amount=0
         )
 
         total = 0
@@ -115,12 +114,3 @@ def create_sales_bill(request):
         bill.save()
         messages.success(request, f"Sales Bill #{bill.id} Created Successfully!")
         return redirect("home")
-
-    return render(
-        request,
-        "create_sales_bill.html",
-        {
-            "customers": customers,
-            "products": products,
-        },
-    )

@@ -1,12 +1,21 @@
 from django.urls import path
-from core import views
+
+from core.views import (
+    HomeView,
+    UserLoginView,
+    UserLogoutView,
+    RegisterView,
+    CustomerCreateView,
+    ProductCreateView,
+    SalesBillCreateView,
+)
 
 urlpatterns = [
-    path("", views.home, name="home"),
-    path("login/", views.user_login, name="login"),
-    path("register/", views.register, name="register"),
-    path("logout/", views.user_logout, name="logout"),
-    path("create-customer/", views.create_customer, name="create_customer"),
-    path("create-product/", views.create_product, name="create_product"),
-    path("create-sales-bill/", views.create_sales_bill, name="create_sales_bill"),
+    path("", HomeView.as_view(), name="home"),
+    path("login/", UserLoginView.as_view(), name="login"),
+    path("logout/", UserLogoutView.as_view(), name="logout"),
+    path("register/", RegisterView.as_view(), name="register"),
+    path("create-customer/", CustomerCreateView.as_view(), name="create_customer"),
+    path("create-product/", ProductCreateView.as_view(), name="create_product"),
+    path("create-sales-bill/", SalesBillCreateView.as_view(), name="create_sales_bill"),
 ]
