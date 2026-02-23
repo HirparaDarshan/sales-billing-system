@@ -6,8 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.shortcuts import redirect
 
-from core.models import Customer, Product, SalesBill, SalesBillItem
-from core.forms import CustomerForm, ProductForm
+from core.models import Customer, Product, SalesBill
+from core.forms import CustomerForm, ProductForm, SalesBillItemFormSet
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
@@ -71,7 +71,9 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class SalesBillCreateView(LoginRequiredMixin, TemplateView):
+class SalesBillCreateView(LoginRequiredMixin, CreateView):
+    model = SalesBill
+    fields = ["customer"]
     template_name = "create_sales_bill.html"
     success_url = reverse_lazy("home")
 
@@ -79,38 +81,38 @@ class SalesBillCreateView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["customers"] = Customer.objects.all()
         context["products"] = Product.objects.all()
+
+        if self.request.POST:
+            context["formset"] = SalesBillItemFormSet(self.request.POST)
+        else:
+            context["formset"] = SalesBillItemFormSet()
         return context
 
-    def post(self, request, *args, **kwargs):
-        customers = Customer.objects.all()
-        products = Product.objects.all()
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context["formset"]
 
-        customer_id = request.POST.get("customer")
-        customer = Customer.objects.get(id=customer_id)
+        form.instance.user = self.request.user
 
-        bill = SalesBill.objects.create(
-            customer=customer, user=request.user, total_amount=0
-        )
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
 
-        total = 0
-        items_data = zip(
-            request.POST.getlist("product"), request.POST.getlist("quantity")
-        )
+            total = 0
+            for item in self.object.items.all():
+                item.price = item.product.price
+                item.subtotal = item.product.price * item.quantity
+                item.save()
+                total += item.subtotal
 
-        for prod_id, qty in items_data:
-            prod = Product.objects.get(id=prod_id)
-            qty = int(qty)
-            subtotal = prod.price * qty
-            SalesBillItem.objects.create(
-                bill=bill,
-                product=prod,
-                quantity=qty,
-                price=prod.price,
-                subtotal=subtotal,
+            self.object.total_amount = total
+            self.object.save()
+
+            messages.success(
+                self.request, f"Sales Bill #{self.object.id} Created Successfully!"
             )
-            total += subtotal
+            return super().form_valid(form)
 
-        bill.total_amount = total
-        bill.save()
-        messages.success(request, f"Sales Bill #{bill.id} Created Successfully!")
-        return redirect("home")
+        messages.error(self.request, "Please correct the errors below in products.")
+        return self.form_invalid(form)
