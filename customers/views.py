@@ -1,0 +1,18 @@
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
+from customers.forms import CustomerForm
+from customers.models import Customer
+
+
+class CustomerCreateView(LoginRequiredMixin, CreateView):
+    model = Customer
+    form_class = CustomerForm
+    template_name = "create_customer.html"
+    success_url = reverse_lazy("home")
+
+    def form_valid(self, form):
+        messages.success(self.request, "Customer Created Successfully")
+        return super().form_valid(form)

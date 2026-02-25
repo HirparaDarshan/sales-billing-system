@@ -1,42 +1,32 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Sales System</title>
-    <link href="{% static 'core/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'core/css/select2.min.css' %}" rel="stylesheet">
-</head>
-<body>
-
-<nav class="navbar navbar-dark bg-dark">
-  <div class="container-fluid">
-    <span class="navbar-brand mb-0 h1">Sales Billing System</span>
-
-    {% if user.is_authenticated %}
-    <form action="{% url 'logout' %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Logout</button>
-    </form>
-    {% endif %}
-  </div>
-</nav>
-
-<div class="container mt-4">
-    {% for message in messages %}
-        <div class="alert alert-warning">{{ message }}</div>
-    {% endfor %}
-
-    {% block content %}{% endblock %}
-</div>
-
-<script src="{% static 'core/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'core/js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'core/js/select2.min.js' %}"></script>
-<script src="{% static 'core/js/jquery.validate.min.js' %}"></script>
-<script src="{% static 'core/js/additional-methods.min.js' %}"></script>
-
-
-{% block extra_js %}{% endblock %}
-
-</body>
+    <head>
+        <title>Sales System</title>
+        <link href="{% static 'accounts/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'accounts/css/select2.min.css' %}" rel="stylesheet">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1">Sales Billing System</span>
+                {% if user.is_authenticated %}
+                    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Logout</button>
+                    </form>
+                {% endif %}
+            </div>
+        </nav>
+        <div class="container mt-4">
+            {% for message in messages %}<div class="alert alert-warning">{{ message }}</div>{% endfor %}
+            {% block content %}{% endblock %}
+        </div>
+        <script src="{% static 'accounts/js/jquery-3.7.1.min.js' %}"></script>
+        <script src="{% static 'accounts/js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'accounts/js/select2.min.js' %}"></script>
+        <script src="{% static 'accounts/js/jquery.validate.min.js' %}"></script>
+        <script src="{% static 'accounts/js/additional-methods.min.js' %}"></script>
+        {% block extra_js %}{% endblock %}
+    </body>
 </html>
