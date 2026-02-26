@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from django.shortcuts import redirect
 
 from customers.models import Customer
 from products.models import Product
@@ -21,7 +22,7 @@ class SalesBillCreateView(LoginRequiredMixin, CreateView):
         return context
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
+        form.instance.created_by = self.request.user
         self.object = form.save()
 
         index = 0
@@ -57,4 +58,5 @@ class SalesBillCreateView(LoginRequiredMixin, CreateView):
         messages.success(
             self.request, f"Sales Bill #{self.object.id} Created Successfully!"
         )
-        return super().form_valid(form)
+
+        return redirect(self.success_url)

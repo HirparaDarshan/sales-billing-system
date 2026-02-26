@@ -17,6 +17,7 @@ class CustomerAdmin(SimpleHistoryAdmin):
     search_fields = ("name", "mobile", "email", "address")
     list_filter = ("customer_type", "created_at", "modified_at", "created_by")
     prepopulated_fields = {"slug": ("name",)}
+    readonly_fields = ("created_by",)
 
     def save_model(self, request, obj, form, change):
         if not obj.pk:

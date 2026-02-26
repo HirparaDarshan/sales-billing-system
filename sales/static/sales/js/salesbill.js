@@ -97,72 +97,89 @@ $(document).ready(function () {
     let customerName = customerSelect.find("option:selected").text();
 
     if (!customerVal) {
-      $(".customer-error").text("Please select customer.");
-      hasError = true;
+        $(".customer-error").text("Please select customer.");
+        hasError = true;
     }
 
     let total = 0;
     let tableRows = "";
+    let anyProductAdded = false;
+    let productRows = $(".product-row");
 
-    $(".product-row").each(function (index) {
-      let product = $(this).find(".product-select");
-      let qtyInput = $(this).find(".qty-input");
+    productRows.each(function (index) {
+        let product = $(this).find(".product-select");
+        let qtyInput = $(this).find(".qty-input");
 
-      let productVal = product.val();
-      let productName = product.find("option:selected").text();
-      let qty = parseInt(qtyInput.val());
-      let price =
-        parseFloat(product.find("option:selected").data("price")) || 0;
+        let productVal = product.val();
+        let productName = product.find("option:selected").text();
+        let qty = parseInt(qtyInput.val());
+        let price = parseFloat(product.find("option:selected").data("price")) || 0;
 
-      if (!productVal) {
-        $(this).find(".product-error").text("Select product");
-        hasError = true;
-      }
+        if (productRows.length > 1) {
+            // Multiple rows: remove empty rows automatically
+            if (!productVal && (!qty || qty <= 0)) {
+                $(this).remove();
+                return; // skip this row
+            }
+        }
 
-      if (!qty || qty <= 0) {
-        $(this).find(".qty-error").text("Invalid quantity");
-        hasError = true;
-      }
+        // For all remaining rows (including single row), validate if empty
+        if (!productVal) {
+            $(this).find(".product-error").text("Please select a product");
+            hasError = true;
+        }
 
-      if (productVal && qty > 0) {
-        let subtotal = qty * price;
-        total += subtotal;
+        if (!qty || qty <= 0) {
+            $(this).find(".qty-error").text("Please enter quantity");
+            hasError = true;
+        }
 
-        tableRows += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${productName}</td>
-                        <td>${qty}</td>
-                        <td>₹${subtotal.toFixed(2)}</td>
-                    </tr>
-                `;
-      }
+        if (productVal && qty > 0) {
+            anyProductAdded = true;
+            let subtotal = qty * price;
+            total += subtotal;
+
+            tableRows += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${productName}</td>
+                    <td>${qty}</td>
+                    <td>₹${subtotal.toFixed(2)}</td>
+                </tr>
+            `;
+        }
     });
+
+    // If all rows are empty (multiple rows), show single error
+    if (!anyProductAdded && productRows.length > 1) {
+        $(".product-error:first").text("Please add at least one product.");
+        return;
+    }
 
     if (hasError) return;
 
     modalBody.append(`
-            <h6 class="mb-3"><strong>Customer:</strong> ${customerName}</h6>
+        <h6 class="mb-3"><strong>Customer:</strong> ${customerName}</h6>
 
-            <table class="table table-bordered text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Product</th>
-                        <th>Qty</th>
-                        <th>Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${tableRows}
-                </tbody>
-            </table>
-        `);
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tableRows}
+            </tbody>
+        </table>
+    `);
 
     $("#modal-total").text("Grand Total: ₹" + total.toFixed(2));
 
     new bootstrap.Modal(document.getElementById("reviewModal")).show();
-  });
+});
 
   $("#modal-submit").click(function () {
     $("#bill-form").submit();
