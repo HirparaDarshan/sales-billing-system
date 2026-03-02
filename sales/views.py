@@ -3,6 +3,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.shortcuts import redirect
+from django.db import transaction
+from sales.tasks import generate_pdf_and_send_email
+
 
 from customers.models import Customer
 from products.models import Product
@@ -54,9 +57,9 @@ class SalesBillCreateView(LoginRequiredMixin, CreateView):
             index += 1
 
         self.object.update_total()
-
         messages.success(
             self.request, f"Sales Bill #{self.object.id} Created Successfully!"
         )
+        transaction.on_commit(lambda: generate_pdf_and_send_email.delay(self.object.id))
 
         return redirect(self.success_url)
