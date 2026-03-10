@@ -12,7 +12,7 @@ class Customer(models.Model):
 
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
-    email = models.EmailField(unique=True, blank=True, null=True)
+    email = models.EmailField(unique=True)
     address = models.TextField(blank=True, null=True)
     customer_type = models.CharField(max_length=20, choices=CUSTOMER_TYPE)
     mobile = models.CharField(max_length=15, unique=True)

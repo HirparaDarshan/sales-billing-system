@@ -24,7 +24,33 @@ $(document).ready(function () {
             }
         },
         errorClass: "text-danger",
-        errorElement: "small"
+        errorElement: "small",
+        submitHandler: function(form) {
+            // AJAX POST
+            $.ajax({
+                url: "/api/products/",
+                type: "POST",
+                data: {
+                    name: $("#id_name").val(),
+                    price: $("#id_price").val()
+                },
+                headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+                success: function(data){
+                    alert("Product Created Successfully! ID: " + data.id);
+                    $("#productForm")[0].reset();
+                },
+                error: function(xhr){
+                    let err = xhr.responseJSON;
+                    if(err && err.name){
+                        alert("Error: " + err.name);
+                    } else {
+                        alert("Something went wrong!");
+                    }
+                }
+            });
+
+            return false;
+        }
     });
 
 });

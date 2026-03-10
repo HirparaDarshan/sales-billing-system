@@ -1,7 +1,7 @@
 from django import forms
-from django.forms import ModelForm, inlineformset_factory
+from django.forms import ModelForm
 
-from sales.models import SalesBill, SalesBillItem
+from sales.models import SalesBillItem
 
 
 class SalesBillItemForm(ModelForm):
@@ -26,12 +26,3 @@ class SalesBillItemForm(ModelForm):
         if quantity is None or quantity <= 0:
             raise forms.ValidationError("Quantity must be greater than zero.")
         return quantity
-
-
-SalesBillItemFormSet = inlineformset_factory(
-    SalesBill,
-    SalesBillItem,
-    form=SalesBillItemForm,
-    extra=1,
-    can_delete=True,
-)

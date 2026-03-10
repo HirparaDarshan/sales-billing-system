@@ -20,8 +20,6 @@ class SalesBillCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["customers"] = Customer.objects.all()
-        context["products"] = Product.objects.all()
         return context
 
     def form_valid(self, form):

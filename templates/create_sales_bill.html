@@ -32,9 +32,6 @@
                                     data-placeholder="Search Customer..."
                                     required>
                                 <option></option>
-                                {% for cust in customers %}
-                                    <option value="{{ cust.id }}">{{ cust.name }} ({{ cust.customer_type }})</option>
-                                {% endfor %}
                             </select>
                             <div class="text-danger small mt-2 customer-error"></div>
                             <a href="{% url 'create_customer' %}"
@@ -91,9 +88,6 @@
                     <select class="form-select product-select select2-product"
                             name="items-__prefix__-product">
                         <option></option>
-                        {% for prod in products %}
-                            <option value="{{ prod.id }}" data-price="{{ prod.price }}">{{ prod.name }}</option>
-                        {% endfor %}
                     </select>
                     <div class="text-danger small product-error"></div>
                 </td>
