@@ -1,29 +1,24 @@
-{% extends 'base.html' %}
 {% load static %}
-{% block content %}
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4>Create Product</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" id="productForm">
-                        {% csrf_token %}
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label>{{ field.label }}</label>
-                                {{ field }}
-                                <div class="text-danger small">{{ field.errors }}</div>
-                            </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-primary w-100">Save Product</button>
-                    </form>
-                </div>
+<div class="modal fade" id="createProductModal" tabindex="-1" aria-labelledby="createProductLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="createProductLabel">Add Product</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" id="productModalForm">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              <div class="text-danger small" id="product_error_{{ field.name }}"></div>
             </div>
-        </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary w-100">Save Product</button>
+        </form>
+      </div>
     </div>
-{% endblock %}
-{% block extra_js %}
-    <script src="{% static 'products/js/products.js' %}"></script>
-{% endblock %}
+  </div>
+</div>

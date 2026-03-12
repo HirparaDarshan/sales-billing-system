@@ -11,7 +11,7 @@ class CustomerForm(forms.ModelForm):
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "address": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "customer_type": forms.Select(attrs={"class": "form-control"}),
+            "customer_type": forms.Select(attrs={"class": "form-select"}),
             "mobile": forms.TextInput(attrs={"class": "form-control"}),
         }
 

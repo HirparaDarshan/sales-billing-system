@@ -71,7 +71,7 @@ Dependencies are included in `requirements.txt`.
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/sales-billing-system.git
+git clone https://github.com/HirparaDarshan/sales-billing-system.git
 cd sales-billing-system
 ```
 

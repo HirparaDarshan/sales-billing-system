@@ -10,6 +10,8 @@ from sales.tasks import generate_pdf_and_send_email
 from customers.models import Customer
 from products.models import Product
 from sales.models import SalesBill, SalesBillItem
+from customers.forms import CustomerForm
+from products.forms import ProductForm
 
 
 class SalesBillCreateView(LoginRequiredMixin, CreateView):
@@ -20,6 +22,8 @@ class SalesBillCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["customer_form"] = CustomerForm()
+        context["product_form"] = ProductForm()
         return context
 
     def form_valid(self, form):

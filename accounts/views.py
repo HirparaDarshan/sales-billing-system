@@ -4,11 +4,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView
+from customers.forms import CustomerForm
+from products.forms import ProductForm
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
     login_url = reverse_lazy("login")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["customer_form"] = CustomerForm()
+        context["product_form"] = ProductForm()
+        return context
 
 
 class UserLoginView(LoginView):
