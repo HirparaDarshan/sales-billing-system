@@ -1,9 +1,11 @@
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import CreateView, TemplateView
+from django.shortcuts import redirect
 from customers.forms import CustomerForm
 from products.forms import ProductForm
 
@@ -28,8 +30,10 @@ class UserLoginView(LoginView):
         return reverse_lazy("home")
 
 
-class UserLogoutView(LogoutView):
-    next_page = reverse_lazy("login")
+class UserLogoutView(View):
+    def post(self, request):
+        auth.logout(request)
+        return redirect(reverse_lazy("login"))
 
 
 class RegisterView(CreateView):
